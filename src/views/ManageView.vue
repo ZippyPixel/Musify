@@ -3,7 +3,7 @@
   <section class="container mx-auto mt-6">
     <div class="md:grid md:grid-cols-3 md:gap-4">
       <div class="col-span-1">
-        <ManageUpload />
+        <ManageUpload ref="ManageUpload" :addSong="addSong" />
       </div>
       <div class="col-span-2">
         <div class="bg-white rounded border border-gray-200 relative flex flex-col">
@@ -13,7 +13,15 @@
           </div>
           <div class="p-6">
             <!-- Composition Items -->
-            <CompositionItem v-for="song in songs" :key="song.docID" />
+            <CompositionItem
+              v-for="(song, index) in songs"
+              :key="song.docID"
+              :song="song"
+              :updateSong="updateSong"
+              :index="index"
+              :removeSong="removeSong"
+              :updateUnsavedFlag="updateUnsavedFlag"
+            />
           </div>
         </div>
       </div>
@@ -36,7 +44,27 @@ export default {
   },
   data() {
     return {
-      songs: []
+      songs: [],
+      unsavedFlag: false
+    }
+  },
+  methods: {
+    updateSong(index, values) {
+      this.songs[index].modified_name = values.modified_name
+      this.songs[index].genre = values.genre
+    },
+    removeSong(index) {
+      this.songs.splice(index, 1)
+    },
+    addSong(doc) {
+      const song = {
+        ...doc.data(),
+        docID: doc.id
+      }
+      this.songs.push(song)
+    },
+    updateUnsavedFlag(value) {
+      this.unsavedFlag = value
     }
   },
   //for guarding route
@@ -51,13 +79,15 @@ export default {
   },
   async created() {
     const snapshot = await songsCollection.where('uid', '==', auth.currentUser.uid).get() //songs of the current user
-    snapshot.forEach((doc) => {
-      const song = {
-        ...doc.data(),
-        docID: doc.id
-      }
-      this.songs.push(song)
-    })
+    snapshot.forEach(this.addSong)
+  },
+  beforeRouteLeave(to, from, next) {
+    if (!this.unsavedFlag) {
+      next()
+    } else {
+      const leave = confirm('You have unsaved changes. Are you sure you want to leave?')
+      next(leave)
+    }
   }
 }
 </script>
