@@ -11,6 +11,7 @@ import './assets/base.css'
 import './assets/main.css'
 
 let app
+
 auth.onAuthStateChanged(() => {
   if (!app) {
     app = createApp(App)
