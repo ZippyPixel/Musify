@@ -21,6 +21,7 @@
       </div>
     </div>
   </section>
+  <SongLyrics :songName="songName" :artistName="artistName" />
   <!-- Form -->
   <section class="container mx-auto mt-6" id="comments">
     <div class="bg-white rounded border border-gray-200 relative flex flex-col">
@@ -89,12 +90,16 @@ import { songsCollection, commentsCollection, auth } from '@/includes/firebase'
 import { mapState, mapActions } from 'pinia'
 import useUserStore from '@/stores/user'
 import usePlayerStore from '@/stores/player'
+import SongLyrics from '../components/SongLyrics.vue'
 
 export default {
   name: 'SongView',
+  components: { SongLyrics },
   data() {
     return {
       song: {},
+      artistName: '',
+      songName: '',
       comments: [],
       schema: {
         comment: 'required|min:3'
@@ -132,7 +137,9 @@ export default {
     this.sort = sort === 'latest' || sort === 'oldest' ? sort : 'latest'
 
     this.song = docSnapshot.data()
+    this.getNames()
     this.getComments()
+    // this.getSongLyrics('Goodbye', 'Apparat')
   },
   methods: {
     ...mapActions(usePlayerStore, ['newSong']),
@@ -177,19 +184,25 @@ export default {
           ...doc.data()
         })
       })
+    },
+    getNames() {
+      const combinedName = this.song.modified_name
+      const nameArray = combinedName.split(' - ')
+      this.artistName = nameArray[0]
+      this.songName = nameArray[1]
     }
   },
   watch: {
-    sort(newVal) {
-      if (newVal === this.$route.query.sort) {
-        return
-      }
-      this.$router.push({
-        query: {
-          sort: newVal
-        }
-      })
-    }
+    // sort(newVal) {
+    //   if (newVal === this.$route.query.sort) {
+    //     return
+    //   }
+    //   this.$router.push({
+    //     query: {
+    //       sort: newVal
+    //     }
+    //   })
+    // }
   }
 }
 </script>

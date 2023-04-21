@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@vee-validate/rules": "^4.8.3",
+    "cors": "^2.8.5",
     "firebase": "^8.10.1",
+    "genius-lyrics-api": "^3.2.0",
     "howler": "^2.2.3",
     "pinia": "^2.0.33",
     "vee-validate": "^4.8.3",
